@@ -243,6 +243,11 @@ function renderAdminDashboard() {
   renderCalendar();
   renderMembers();
   renderAdminSlots();
+  renderBookedInterviews();
+}
+
+function isCalendarDatePast(date) {
+  return date < currentTimeKey().slice(0, 10);
 }
 
 function renderCalendar() {
@@ -272,9 +277,14 @@ function renderCalendar() {
     button.className = "calendar-day";
     button.textContent = day;
     button.setAttribute("aria-label", fmtDateHeading(key));
+    if (isCalendarDatePast(key)) {
+      button.disabled = true;
+      button.classList.add("past");
+    }
     if (key === selectedAdminDate) button.classList.add("selected");
     if (slotDates.has(key)) button.classList.add("has-slots");
     button.addEventListener("click", () => {
+      if (button.disabled) return;
       selectedAdminDate = key;
       renderAdminDashboard();
     });
@@ -526,6 +536,63 @@ function renderAdminSlots() {
     });
   });
 }
+
+function renderBookedInterviews() {
+  const container = document.getElementById("admin-interviews-list");
+  const bookings = loadSlots().flatMap((slot) => slot.bookings.map((booking) => ({ slot, booking })));
+  const active = bookings.filter(({ booking }) => !booking.completed);
+  const completed = bookings.filter(({ booking }) => booking.completed);
+
+  const renderGroup = (title, items, emptyText, doneAction) => {
+    const rows = items.length
+      ? items.map(({ slot, booking }) => {
+          const end = minutesToTime(timeToMinutes(slot.time) + Number(slot.duration || 20));
+          const action = doneAction
+            ? `<button class="btn" type="button" data-complete-booking="${slot.id}|${booking.id}">Done</button>`
+            : '<span class="completed-mark">Completed</span>';
+          return `<article class="interview-row ${booking.completed ? "is-complete" : ""}">
+            <div><strong>${escapeHtml(booking.candidate)}</strong><span>${escapeHtml(booking.email || "No email")}</span></div>
+            <div><strong>${fmtDateHeading(slot.date)}</strong><span>${fmtTime(slot.date, slot.time)} - ${fmtTime(slot.date, end)}</span></div>
+            <div><strong>Interviewer</strong><span>${escapeHtml(booking.interviewer)}</span></div>
+            ${action}
+          </article>`;
+        }).join("")
+      : `<p class="hint">${emptyText}</p>`;
+    return `<section class="interview-group"><div class="interview-group-header"><h3>${title}</h3><span>${items.length}</span></div>${rows}</section>`;
+  };
+
+  container.innerHTML = renderGroup("Booked interviews", active, "No booked interviews yet.", true) + renderGroup("Completed interviews", completed, "No interviews marked done yet.", false);
+  container.querySelectorAll("[data-complete-booking]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const [slotId, bookingId] = button.getAttribute("data-complete-booking").split("|");
+      const updated = loadSlots().map((slot) => slot.id === slotId
+        ? { ...slot, bookings: slot.bookings.map((booking) => booking.id === bookingId ? { ...booking, completed: true } : booking) }
+        : slot);
+      saveSlots(updated);
+      renderAdminDashboard();
+    });
+  });
+}
+
+const showSlotsButton = document.getElementById("show-slots");
+const showInterviewsButton = document.getElementById("show-interviews");
+const adminSlotsList = document.getElementById("admin-slots-list");
+const adminInterviewsList = document.getElementById("admin-interviews-list");
+
+showSlotsButton.addEventListener("click", () => {
+  showSlotsButton.classList.add("active");
+  showInterviewsButton.classList.remove("active");
+  adminSlotsList.classList.remove("hidden");
+  adminInterviewsList.classList.add("hidden");
+});
+
+showInterviewsButton.addEventListener("click", () => {
+  showInterviewsButton.classList.add("active");
+  showSlotsButton.classList.remove("active");
+  adminInterviewsList.classList.remove("hidden");
+  adminSlotsList.classList.add("hidden");
+  renderBookedInterviews();
+});
 
 // ================= RENDER: CANDIDATE BOOKING VIEW =================
 function renderBookingView() {

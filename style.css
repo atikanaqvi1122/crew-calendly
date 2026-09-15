@@ -725,6 +725,19 @@ select:focus {
   transform: none;
 }
 
+.calendar-day.past,
+.calendar-day.past:hover {
+  color: rgba(73, 101, 120, 0.38);
+  background: rgba(23, 50, 77, 0.03);
+  border-color: transparent;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.calendar-day.past.has-slots::after {
+  background: rgba(200, 70, 70, 0.3);
+}
+
 .selected-date-label {
   margin: 18px 0 0;
   padding-top: 12px;
@@ -837,6 +850,116 @@ select:focus {
   color: var(--red);
   font-family: 'Space Grotesk', 'Trebuchet MS', sans-serif;
   font-size: 24px;
+}
+
+.admin-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-view-tabs {
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.78);
+}
+
+.admin-view-tab {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--navy-soft);
+  background: transparent;
+  font: 700 12px 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+.admin-view-tab:hover,
+.admin-view-tab.active {
+  color: var(--navy);
+  background: var(--blue-pale);
+}
+
+.interview-group {
+  margin-bottom: 20px;
+}
+
+.interview-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.interview-group-header h3 {
+  margin: 0;
+  color: var(--red);
+  font-family: 'Space Grotesk', 'Trebuchet MS', sans-serif;
+  font-size: 18px;
+}
+
+.interview-group-header span {
+  display: inline-grid;
+  min-width: 22px;
+  min-height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--navy);
+  background: var(--yellow);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.interview-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 0.8fr auto;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 250, 240, 0.88);
+}
+
+.interview-row div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.interview-row strong,
+.interview-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interview-row strong {
+  color: var(--navy);
+  font-size: 13px;
+}
+
+.interview-row span {
+  color: var(--navy-soft);
+  font-size: 12px;
+}
+
+.interview-row .btn {
+  margin-top: 0;
+}
+
+.interview-row.is-complete {
+  opacity: 0.68;
+}
+
+.completed-mark {
+  color: #28744f !important;
+  font-weight: 700;
 }
 
 .date-heading {
@@ -1045,6 +1168,20 @@ select:focus {
 
   .admin-dashboard {
     grid-template-columns: 1fr;
+  }
+
+  .admin-list-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .interview-row {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .interview-row .btn {
+    width: 100%;
   }
 
   .calendar-day {
