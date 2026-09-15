@@ -44,33 +44,33 @@ body {
 
 .background-motif {
   position: absolute;
-  width: min(430px, 34vw);
+  width: min(320px, 25vw);
   aspect-ratio: 1;
   background: url('bgelement1.png') center / contain no-repeat;
-  opacity: 0.3;
+  opacity: 0.24;
 }
 
 .motif-top-left {
-  top: 0;
-  left: 0;
+  top: -82px;
+  left: -82px;
   transform: rotate(12deg);
 }
 
 .motif-top-right {
-  top: 0;
-  right: 0;
+  top: -82px;
+  right: -82px;
   transform: rotate(102deg);
 }
 
 .motif-bottom-left {
-  bottom: 0;
-  left: 0;
+  bottom: -82px;
+  left: -82px;
   transform: rotate(-78deg);
 }
 
 .motif-bottom-right {
-  right: 0;
-  bottom: 0;
+  right: -82px;
+  bottom: -82px;
   transform: rotate(192deg);
 }
 
@@ -867,28 +867,28 @@ select:focus {
   }
 
   .background-motif {
-    width: 250px;
-    opacity: 0.25;
+    width: 190px;
+    opacity: 0.2;
   }
 
   .motif-top-left,
   .motif-top-right {
-    top: 0;
+    top: -52px;
   }
 
   .motif-bottom-left,
   .motif-bottom-right {
-    bottom: 0;
+    bottom: -52px;
   }
 
   .motif-top-left,
   .motif-bottom-left {
-    left: 0;
+    left: -52px;
   }
 
   .motif-top-right,
   .motif-bottom-right {
-    right: 0;
+    right: -52px;
   }
 
   .topbar {
