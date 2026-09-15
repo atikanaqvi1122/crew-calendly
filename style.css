@@ -938,7 +938,16 @@ select:focus {
 }
 
 .booking-remove {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
   text-align: right;
+}
+
+.compact-remove {
+  padding: 5px 8px;
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {

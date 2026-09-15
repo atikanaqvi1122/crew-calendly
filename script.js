@@ -459,8 +459,8 @@ function renderAdminSlots() {
               <td><input class="compact-edit" data-booking-email="${slot.id}|${b.id}" value="${escapeHtml(b.email || "")}" aria-label="Candidate email" /></td>
               <td><input class="compact-edit" data-booking-interviewer="${slot.id}|${b.id}" value="${escapeHtml(b.interviewer)}" aria-label="Interviewer" /></td>
               <td class="booking-remove">
-                <button class="btn-link" data-save-booking="${slot.id}|${b.id}">Save</button>
-                <button class="btn-link" data-remove-booking="${slot.id}|${b.id}">Remove this person</button>
+                <button class="btn-link" type="button" data-save-booking="${slot.id}|${b.id}">Save</button>
+                <button class="btn-danger compact-remove" type="button" data-remove-booking="${slot.id}|${b.id}">Remove this person</button>
               </td>
             </tr>`
             )
@@ -497,7 +497,7 @@ function renderAdminSlots() {
 
   container.querySelectorAll("[data-remove-booking]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      removeBooking(btn.getAttribute("data-remove-booking"), renderAdminSlots);
+      removeBooking(btn.getAttribute("data-remove-booking"), renderAdminDashboard);
     });
   });
 
