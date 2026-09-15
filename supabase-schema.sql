@@ -6,7 +6,7 @@ create table if not exists public.interview_slots (
   id text primary key,
   date text not null,
   time text not null,
-  duration integer not null default 30,
+  duration integer not null default 20,
   interviewers jsonb not null default '[]'::jsonb,
   bookings jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()

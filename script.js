@@ -53,7 +53,7 @@ async function syncSlots(slots) {
     id: slot.id,
     date: slot.date,
     time: slot.time,
-    duration: slot.duration || 30,
+    duration: slot.duration || 20,
     interviewers: slot.interviewers || [],
     bookings: slot.bookings || [],
   }));
@@ -347,6 +347,27 @@ document.getElementById("calendar-next").addEventListener("click", () => {
   renderCalendar();
 });
 
+function updateAvailabilityPreview() {
+  const start = document.getElementById("availability-start").value;
+  const duration = Number(document.getElementById("slot-duration").value);
+  const preview = document.getElementById("availability-preview");
+  if (!start || !preview) return;
+
+  const end = minutesToTime(timeToMinutes(start) + duration);
+  preview.textContent = `First interview ends at ${fmtClock(end)}.`;
+}
+
+function fmtClock(value) {
+  const [hours, minutes] = value.split(":").map(Number);
+  return new Date(2000, 0, 1, hours, minutes).toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+document.getElementById("availability-start").addEventListener("input", updateAvailabilityPreview);
+document.getElementById("slot-duration").addEventListener("change", updateAvailabilityPreview);
+
 document.getElementById("add-availability").addEventListener("click", () => {
   const start = document.getElementById("availability-start").value;
   const end = document.getElementById("availability-end").value;
@@ -437,7 +458,7 @@ function renderAdminSlots() {
         <div>
           <strong>${fmtDateHeading(slot.date)}, ${fmtTime(slot.date, slot.time)}</strong>
           <div class="slot-meta">
-            ${slot.duration || 30}-minute interview ·
+            ${slot.duration || 20}-minute interview ·
             ${slot.interviewers.length} parallel room${slot.interviewers.length !== 1 ? "s" : ""}:
             ${escapeHtml(slot.interviewers.join(", "))}
           </div>
@@ -475,7 +496,7 @@ function renderAdminSlots() {
 // ================= RENDER: CANDIDATE BOOKING VIEW =================
 function renderBookingView() {
   const container = document.getElementById("slots-list");
-  const slots = loadSlots();
+  const slots = loadSlots().filter((slot) => !isSlotPast(slot));
   container.innerHTML = "";
 
   if (slots.length === 0) {
@@ -507,7 +528,7 @@ function renderBookingView() {
           <div class="slot-row">
             <div>
               <span class="slot-time">${fmtTime(slot.date, slot.time)}</span>
-              <div class="slot-meta">${slot.duration || 30}-minute interview</div>
+              <div class="slot-meta">${slot.duration || 20}-minute interview</div>
               <div>
                 <span class="pill ${full ? "full" : "open"}">
                   ${full ? "Full" : `${remaining} spot${remaining !== 1 ? "s" : ""} open`}
@@ -551,6 +572,12 @@ function bookSlot(slotId) {
   const slot = slots.find((s) => s.id === slotId);
   if (!slot) return;
 
+  if (isSlotPast(slot)) {
+    setStatus(statusEl, "That interview time has passed. Pick another slot.", "error");
+    renderBookingView();
+    return;
+  }
+
   const taken = new Set(slot.bookings.map((b) => b.interviewer));
   const openInterviewer = slot.interviewers.find((i) => !taken.has(i));
 
@@ -576,6 +603,24 @@ function setStatus(el, text, type) {
   el.className = "status " + type;
 }
 
+function currentTimeKey() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: selectedTimezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`;
+}
+
+function isSlotPast(slot) {
+  return `${slot.date}T${slot.time}` <= currentTimeKey();
+}
+
 let selectedTimezone = "Asia/Karachi";
 
 function updateTimezone() {
@@ -596,6 +641,7 @@ function setTimezone(timezone, name) {
   document.getElementById("timezone-options").classList.add("hidden");
   document.getElementById("timezone-control").setAttribute("aria-expanded", "false");
   updateTimezone();
+  renderBookingView();
 }
 
 const timezoneControl = document.getElementById("timezone-control");

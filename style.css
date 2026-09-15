@@ -746,6 +746,13 @@ select:focus {
   font-weight: 700;
 }
 
+.availability-preview {
+  margin: 12px 0 0;
+  color: var(--red-dark);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .availability-members {
   display: flex;
   flex-wrap: wrap;
