@@ -39,5 +39,26 @@ create policy "Public can update interview members" on public.interview_members 
 create policy "Public can delete interview members" on public.interview_members for delete to anon, authenticated using (true);
 
 -- Enable realtime broadcasts for cross-device updates.
-alter publication supabase_realtime add table public.interview_slots;
-alter publication supabase_realtime add table public.interview_members;
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'interview_slots'
+  ) then
+    alter publication supabase_realtime add table public.interview_slots;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'interview_members'
+  ) then
+    alter publication supabase_realtime add table public.interview_members;
+  end if;
+end
+$$;
