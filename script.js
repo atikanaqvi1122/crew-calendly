@@ -2,32 +2,125 @@
 const STORAGE_KEY = "crew-interview-slots";
 const MEMBERS_KEY = "crew-interview-members";
 const ADMIN_PASS = "crew2026"; // change this to your own passcode
+const SUPABASE_URL = "https://hyaobkidijsxpofaxszf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_piTNNGu_Rva3iObyHfsx0Q_Nn9sezZX";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let backendReady = false;
+let slotsCache = readLocal(STORAGE_KEY, []);
+let membersCache = readLocal(MEMBERS_KEY, []);
+
+function readLocal(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeLocal(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
 
 // ================= STORAGE HELPERS =================
 function loadSlots() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return slotsCache;
 }
 
 function saveSlots(slots) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(slots));
+  slotsCache = slots;
+  writeLocal(STORAGE_KEY, slots);
+  if (backendReady) syncSlots(slots);
 }
 
 function loadMembers() {
-  try {
-    const raw = localStorage.getItem(MEMBERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return membersCache;
 }
 
 function saveMembers(members) {
-  localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
+  membersCache = members;
+  writeLocal(MEMBERS_KEY, members);
+  if (backendReady) syncMembers(members);
+}
+
+async function syncSlots(slots) {
+  const { data: remoteSlots } = await supabaseClient.from("interview_slots").select("id");
+  const currentIds = new Set(slots.map((slot) => slot.id));
+  const removedIds = (remoteSlots || []).map((row) => row.id).filter((id) => !currentIds.has(id));
+  if (removedIds.length) await supabaseClient.from("interview_slots").delete().in("id", removedIds);
+
+  const rows = slots.map((slot) => ({
+    id: slot.id,
+    date: slot.date,
+    time: slot.time,
+    duration: slot.duration || 30,
+    interviewers: slot.interviewers || [],
+    bookings: slot.bookings || [],
+  }));
+  const { error } = await supabaseClient.from("interview_slots").upsert(rows);
+  if (error) console.error("Could not sync slots:", error.message);
+}
+
+async function syncMembers(members) {
+  const { data: remoteMembers, error } = await supabaseClient.from("interview_members").select("name");
+  if (error) {
+    console.error("Could not sync members:", error.message);
+    return;
+  }
+
+  const removed = remoteMembers.filter((row) => !members.includes(row.name)).map((row) => row.name);
+  if (removed.length) await supabaseClient.from("interview_members").delete().in("name", removed);
+  if (members.length) await supabaseClient.from("interview_members").upsert(members.map((name) => ({ name })));
+}
+
+async function bootstrapBackend() {
+  const [{ data: remoteSlots, error: slotsError }, { data: remoteMembers, error: membersError }] = await Promise.all([
+    supabaseClient.from("interview_slots").select("*").order("date").order("time"),
+    supabaseClient.from("interview_members").select("name").order("name"),
+  ]);
+
+  if (slotsError || membersError) {
+    console.error("Supabase is not ready. Run supabase-schema.sql first.", slotsError?.message || membersError?.message);
+    return;
+  }
+
+  backendReady = true;
+  if (remoteSlots.length === 0 && slotsCache.length) await syncSlots(slotsCache);
+  else {
+    slotsCache = remoteSlots;
+    writeLocal(STORAGE_KEY, slotsCache);
+  }
+
+  if (remoteMembers.length === 0 && membersCache.length) await syncMembers(membersCache);
+  else {
+    membersCache = remoteMembers.map((row) => row.name);
+    writeLocal(MEMBERS_KEY, membersCache);
+  }
+  renderBookingView();
+  if (isAdminAuthed) renderAdminDashboard();
+}
+
+function subscribeToChanges() {
+  supabaseClient
+    .channel("crew-interview-live-sync")
+    .on("postgres_changes", { event: "*", schema: "public", table: "interview_slots" }, async () => {
+      const { data } = await supabaseClient.from("interview_slots").select("*").order("date").order("time");
+      if (data) {
+        slotsCache = data;
+        writeLocal(STORAGE_KEY, slotsCache);
+        renderBookingView();
+        if (isAdminAuthed) renderAdminDashboard();
+      }
+    })
+    .on("postgres_changes", { event: "*", schema: "public", table: "interview_members" }, async () => {
+      const { data } = await supabaseClient.from("interview_members").select("name").order("name");
+      if (data) {
+        membersCache = data.map((row) => row.name);
+        writeLocal(MEMBERS_KEY, membersCache);
+        if (isAdminAuthed) renderAdminDashboard();
+      }
+    })
+    .subscribe();
 }
 
 function uid() {
@@ -500,3 +593,5 @@ function escapeHtml(str) {
 renderBookingView();
 updateTimezone();
 setInterval(updateTimezone, 30000);
+subscribeToChanges();
+bootstrapBackend();
