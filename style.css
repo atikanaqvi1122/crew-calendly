@@ -891,6 +891,43 @@ select:focus {
   border-top: 1px solid var(--line);
 }
 
+.slot-edit-grid {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-edit-grid input,
+.slot-edit-grid select,
+.compact-edit {
+  min-height: 32px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.slot-edit-grid input[type='date'] {
+  width: 132px;
+}
+
+.slot-edit-grid input[type='time'] {
+  width: 90px;
+}
+
+.slot-edit-grid select {
+  width: 82px;
+}
+
+.slot-range {
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.compact-edit {
+  width: 100%;
+}
+
 .booking-candidate {
   color: var(--navy);
   font-weight: 600;

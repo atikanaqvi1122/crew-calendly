@@ -96,7 +96,9 @@
                 <label class="field-label" for="availability-start">From</label>
                 <input type="time" id="availability-start" value="09:00" />
                 <label class="field-label" for="availability-end">Until</label>
-                <input type="time" id="availability-end" value="17:00" />
+                <input type="time" id="availability-end" value="09:20" readonly />
+                <label class="field-label" for="availability-window-end">Day ends</label>
+                <input type="time" id="availability-window-end" value="17:00" />
                 <label class="field-label" for="slot-duration">Length</label>
                 <select id="slot-duration" aria-label="Interview duration">
                   <option value="15">15 min</option>
@@ -106,7 +108,7 @@
                   <option value="60">60 min</option>
                 </select>
               </div>
-              <p id="availability-preview" class="availability-preview">First interview ends at 09:20.</p>
+              <p id="availability-preview" class="availability-preview">Interview ends at 09:20.</p>
               <div class="member-picker-heading">Available members</div>
               <div id="availability-members" class="availability-members"></div>
               <button id="add-availability" class="btn" type="button">Open these times</button>

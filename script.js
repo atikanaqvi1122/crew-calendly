@@ -347,6 +347,14 @@ document.getElementById("calendar-next").addEventListener("click", () => {
   renderCalendar();
 });
 
+function updateAvailabilityEnd() {
+  const start = document.getElementById("availability-start").value;
+  const duration = Number(document.getElementById("slot-duration").value);
+  const end = minutesToTime(timeToMinutes(start) + duration);
+  document.getElementById("availability-end").value = end;
+  document.getElementById("availability-preview").textContent = `Interview ends at ${fmtClock(end)}.`;
+}
+
 function updateAvailabilityPreview() {
   const start = document.getElementById("availability-start").value;
   const duration = Number(document.getElementById("slot-duration").value);
@@ -354,6 +362,7 @@ function updateAvailabilityPreview() {
   if (!start || !preview) return;
 
   const end = minutesToTime(timeToMinutes(start) + duration);
+  document.getElementById("availability-end").value = end;
   preview.textContent = `First interview ends at ${fmtClock(end)}.`;
 }
 
@@ -370,13 +379,17 @@ document.getElementById("slot-duration").addEventListener("change", updateAvaila
 
 document.getElementById("add-availability").addEventListener("click", () => {
   const start = document.getElementById("availability-start").value;
-  const end = document.getElementById("availability-end").value;
+  const end = document.getElementById("availability-window-end").value;
   const duration = Number(document.getElementById("slot-duration").value);
   const members = [...document.querySelectorAll("#availability-members input:checked")].map((input) => input.value);
   const status = document.getElementById("admin-form-status");
 
   if (!start || !end || start >= end) {
     setStatus(status, "Choose a valid start and end time.", "error");
+    return;
+  }
+  if (`${selectedAdminDate}T${start}` <= currentTimeKey()) {
+    setStatus(status, "Past times cannot be opened.", "error");
     return;
   }
   if (members.length === 0) {
@@ -442,10 +455,11 @@ function renderAdminSlots() {
             .map(
               (b) => `
             <tr>
-              <td class="booking-candidate">${escapeHtml(b.candidate)}</td>
-              <td class="booking-interviewer">with ${escapeHtml(b.interviewer)}</td>
+              <td><input class="compact-edit" data-booking-candidate="${slot.id}|${b.id}" value="${escapeHtml(b.candidate)}" aria-label="Candidate name" /></td>
+              <td><input class="compact-edit" data-booking-email="${slot.id}|${b.id}" value="${escapeHtml(b.email || "")}" aria-label="Candidate email" /></td>
+              <td><input class="compact-edit" data-booking-interviewer="${slot.id}|${b.id}" value="${escapeHtml(b.interviewer)}" aria-label="Interviewer" /></td>
               <td class="booking-remove">
-                <button class="btn-link" data-remove-booking="${slot.id}|${b.id}">Remove</button>
+                <button class="btn-link" data-save-booking="${slot.id}|${b.id}">Save</button>
               </td>
             </tr>`
             )
@@ -455,15 +469,16 @@ function renderAdminSlots() {
 
     card.innerHTML = `
       <div class="slot-row">
-        <div>
-          <strong>${fmtDateHeading(slot.date)}, ${fmtTime(slot.date, slot.time)}</strong>
-          <div class="slot-meta">
-            ${slot.duration || 20}-minute interview ·
-            ${slot.interviewers.length} parallel room${slot.interviewers.length !== 1 ? "s" : ""}:
-            ${escapeHtml(slot.interviewers.join(", "))}
-          </div>
+        <div class="slot-edit-grid">
+          <input type="date" data-slot-date="${slot.id}" value="${slot.date}" aria-label="Slot date" />
+          <input type="time" data-slot-time="${slot.id}" value="${slot.time}" aria-label="Slot start time" />
+          <select data-slot-duration="${slot.id}" aria-label="Slot duration">
+            ${[15, 20, 30, 45, 60].map((minutes) => `<option value="${minutes}" ${Number(slot.duration || 20) === minutes ? "selected" : ""}>${minutes} min</option>`).join("")}
+          </select>
+          <span class="slot-range">${fmtTime(slot.date, slot.time)} - ${fmtTime(slot.date, minutesToTime(timeToMinutes(slot.time) + Number(slot.duration || 20)))}</span>
+          <button class="btn-link" data-save-slot="${slot.id}">Save slot</button>
+          <button class="btn-danger" data-delete-slot="${slot.id}">Delete</button>
         </div>
-        <button class="btn-danger" data-delete-slot="${slot.id}">Delete slot</button>
       </div>
       ${bookingsHtml}
     `;
@@ -487,6 +502,31 @@ function renderAdminSlots() {
           ? { ...s, bookings: s.bookings.filter((b) => b.id !== bookingId) }
           : s
       );
+      saveSlots(updated);
+      renderAdminSlots();
+    });
+  });
+
+  container.querySelectorAll("[data-save-slot]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-save-slot");
+      const date = container.querySelector(`[data-slot-date="${id}"]`).value;
+      const time = container.querySelector(`[data-slot-time="${id}"]`).value;
+      const duration = Number(container.querySelector(`[data-slot-duration="${id}"]`).value);
+      if (!date || !time || `${date}T${time}` <= currentTimeKey()) return;
+      const updated = loadSlots().map((slot) => slot.id === id ? { ...slot, date, time, duration } : slot);
+      saveSlots(updated);
+      renderAdminSlots();
+    });
+  });
+
+  container.querySelectorAll("[data-save-booking]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const [slotId, bookingId] = btn.getAttribute("data-save-booking").split("|");
+      const candidate = container.querySelector(`[data-booking-candidate="${slotId}|${bookingId}"]`).value.trim();
+      const email = container.querySelector(`[data-booking-email="${slotId}|${bookingId}"]`).value.trim();
+      const interviewer = container.querySelector(`[data-booking-interviewer="${slotId}|${bookingId}"]`).value.trim();
+      const updated = loadSlots().map((slot) => slot.id === slotId ? { ...slot, bookings: slot.bookings.map((booking) => booking.id === bookingId ? { ...booking, candidate, email, interviewer } : booking) } : slot);
       saveSlots(updated);
       renderAdminSlots();
     });
