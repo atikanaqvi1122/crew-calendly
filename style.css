@@ -42,37 +42,83 @@ body {
   inset: 0;
 }
 
-.background-motif {
+.corner-motif,
+.side-motif {
   position: absolute;
-  width: min(320px, 25vw);
-  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.corner-motif {
+  width: min(350px, 29vw);
+  aspect-ratio: 1.307 / 1;
+  background: url('corner.png') center / contain no-repeat;
+  opacity: 0.52;
+}
+
+.corner-top-left {
+  top: -38px;
+  left: -38px;
+  transform: scaleY(-1);
+}
+
+.corner-top-right {
+  top: -38px;
+  right: -38px;
+  transform: scale(-1, -1);
+}
+
+.corner-bottom-left {
+  bottom: -38px;
+  left: -38px;
+}
+
+.corner-bottom-right {
+  right: -38px;
+  bottom: -38px;
+  transform: scaleX(-1);
+}
+
+.side-motif {
+  top: 50%;
+  width: min(290px, 22vw);
+  aspect-ratio: 1.307 / 1;
   background: url('bgelement1.png') center / contain no-repeat;
-  opacity: 0.24;
+  opacity: 0.42;
 }
 
-.motif-top-left {
-  top: -82px;
-  left: -82px;
-  transform: rotate(45deg);
+.side-left {
+  left: -92px;
+  transform: translateY(-50%) rotate(90deg);
 }
 
-.motif-top-right {
-  top: -82px;
-  right: -82px;
-  transform: rotate(135deg);
+.side-right {
+  right: -92px;
+  transform: translateY(-50%) rotate(-90deg);
 }
 
-.motif-bottom-left {
-  bottom: -82px;
-  left: -82px;
-  transform: rotate(-45deg);
+.ring-motif {
+  position: absolute;
+  width: 150px;
+  aspect-ratio: 1;
+  background: url('element.png') center / contain no-repeat;
+  opacity: 0.62;
+  filter: drop-shadow(0 0 8px rgba(61, 190, 225, 0.48));
+  animation: ring-blink 1.6s ease-in-out infinite;
 }
 
-.motif-bottom-right {
-  right: -82px;
-  bottom: -82px;
-  transform: rotate(-135deg);
+@keyframes ring-blink {
+  0%, 100% { opacity: 0.32; }
+  50% { opacity: 0.88; }
 }
+
+.ring-upper-left { width: 105px; top: 24%; left: 7%; transform: rotate(-16deg); }
+.ring-upper-right { width: 185px; top: 30%; right: 6%; transform: rotate(18deg); }
+.ring-mid-left { width: 220px; top: 43%; left: 3%; animation-delay: 0.4s; transform: rotate(12deg); }
+.ring-mid-right { width: 120px; top: 48%; right: 4%; animation-delay: 0.8s; transform: rotate(-24deg); }
+.ring-center-left { width: 80px; top: 62%; left: 17%; animation-delay: 1.2s; transform: rotate(30deg); }
+.ring-center-right { width: 205px; top: 68%; right: 15%; animation-delay: 1.6s; transform: rotate(-10deg); }
+.ring-lower-center { width: 135px; bottom: 5%; left: 50%; animation-delay: 2s; transform: translateX(-50%) rotate(-8deg); }
+.ring-lower-right { width: 95px; right: 27%; bottom: 8%; animation-delay: 2.4s; transform: rotate(22deg); }
 
 .page {
   position: relative;
@@ -118,10 +164,9 @@ body {
 
 .brand-logo-frame img {
   display: block;
-  width: 380px;
   height: auto;
+  width: 380px;
 }
-
 .brand-label {
   display: inline-block;
   margin-top: -10px;
@@ -866,29 +911,47 @@ select:focus {
     padding: 28px 18px 56px;
   }
 
-  .background-motif {
-    width: 190px;
-    opacity: 0.2;
+  .corner-motif {
+    width: 230px;
+    opacity: 0.42;
   }
 
-  .motif-top-left,
-  .motif-top-right {
-    top: -52px;
+  .corner-top-left,
+  .corner-top-right {
+    top: -28px;
   }
 
-  .motif-bottom-left,
-  .motif-bottom-right {
-    bottom: -52px;
+  .corner-bottom-left,
+  .corner-bottom-right {
+    bottom: -28px;
   }
 
-  .motif-top-left,
-  .motif-bottom-left {
-    left: -52px;
+  .corner-top-left,
+  .corner-bottom-left {
+    left: -28px;
   }
 
-  .motif-top-right,
-  .motif-bottom-right {
-    right: -52px;
+  .corner-top-right,
+  .corner-bottom-right {
+    right: -28px;
+  }
+
+  .side-motif {
+    width: 175px;
+    opacity: 0.32;
+  }
+
+  .side-left {
+    left: -72px;
+  }
+
+  .side-right {
+    right: -72px;
+  }
+
+  .ring-motif {
+    opacity: 0.58;
+    filter: drop-shadow(0 0 6px rgba(61, 190, 225, 0.42));
   }
 
   .topbar {
