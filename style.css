@@ -21,6 +21,7 @@
 }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
@@ -34,8 +35,48 @@ body {
   background-size: 32px 32px, 32px 32px, 100% 100%;
 }
 
+.background-motifs {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  inset: 0;
+}
+
+.background-motif {
+  position: absolute;
+  width: min(430px, 34vw);
+  aspect-ratio: 1;
+  background: url('bgelement1.png') center / contain no-repeat;
+  opacity: 0.3;
+}
+
+.motif-top-left {
+  top: 0;
+  left: 0;
+  transform: rotate(12deg);
+}
+
+.motif-top-right {
+  top: 0;
+  right: 0;
+  transform: rotate(102deg);
+}
+
+.motif-bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: rotate(-78deg);
+}
+
+.motif-bottom-right {
+  right: 0;
+  bottom: 0;
+  transform: rotate(192deg);
+}
+
 .page {
   position: relative;
+  z-index: 1;
   max-width: 1040px;
   min-height: 100vh;
   margin: 0 auto;
@@ -816,6 +857,31 @@ select:focus {
 @media (max-width: 640px) {
   .page {
     padding: 28px 18px 56px;
+  }
+
+  .background-motif {
+    width: 250px;
+    opacity: 0.25;
+  }
+
+  .motif-top-left,
+  .motif-top-right {
+    top: 0;
+  }
+
+  .motif-bottom-left,
+  .motif-bottom-right {
+    bottom: 0;
+  }
+
+  .motif-top-left,
+  .motif-bottom-left {
+    left: 0;
+  }
+
+  .motif-top-right,
+  .motif-bottom-right {
+    right: 0;
   }
 
   .topbar {
