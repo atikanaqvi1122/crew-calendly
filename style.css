@@ -53,25 +53,25 @@ body {
 .motif-top-left {
   top: -82px;
   left: -82px;
-  transform: rotate(12deg);
+  transform: rotate(45deg);
 }
 
 .motif-top-right {
   top: -82px;
   right: -82px;
-  transform: rotate(102deg);
+  transform: rotate(135deg);
 }
 
 .motif-bottom-left {
   bottom: -82px;
   left: -82px;
-  transform: rotate(-78deg);
+  transform: rotate(-45deg);
 }
 
 .motif-bottom-right {
   right: -82px;
   bottom: -82px;
-  transform: rotate(192deg);
+  transform: rotate(-135deg);
 }
 
 .page {
