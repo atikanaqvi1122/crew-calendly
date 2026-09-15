@@ -460,6 +460,7 @@ function renderAdminSlots() {
               <td><input class="compact-edit" data-booking-interviewer="${slot.id}|${b.id}" value="${escapeHtml(b.interviewer)}" aria-label="Interviewer" /></td>
               <td class="booking-remove">
                 <button class="btn-link" data-save-booking="${slot.id}|${b.id}">Save</button>
+                <button class="btn-link" data-remove-booking="${slot.id}|${b.id}">Remove this person</button>
               </td>
             </tr>`
             )
@@ -496,14 +497,7 @@ function renderAdminSlots() {
 
   container.querySelectorAll("[data-remove-booking]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const [slotId, bookingId] = btn.getAttribute("data-remove-booking").split("|");
-      const updated = loadSlots().map((s) =>
-        s.id === slotId
-          ? { ...s, bookings: s.bookings.filter((b) => b.id !== bookingId) }
-          : s
-      );
-      saveSlots(updated);
-      renderAdminSlots();
+      removeBooking(btn.getAttribute("data-remove-booking"), renderAdminSlots);
     });
   });
 
@@ -561,23 +555,31 @@ function renderBookingView() {
       grouped[date].forEach((slot) => {
         const remaining = slot.interviewers.length - slot.bookings.length;
         const full = remaining <= 0;
+        const currentEmail = document.getElementById("candidate-email").value.trim().toLowerCase();
+        const currentName = document.getElementById("candidate-name").value.trim().toLowerCase();
+        const ownBooking = slot.bookings.find((booking) =>
+          booking.email?.toLowerCase() === currentEmail && booking.candidate?.toLowerCase() === currentName
+        );
+
+        if (full && !ownBooking) return;
 
         const card = document.createElement("div");
         card.className = "card";
+        const statusText = ownBooking ? "Booked" : `${remaining} spot${remaining !== 1 ? "s" : ""} open`;
+        const statusClass = ownBooking ? "open" : "open";
+        const action = ownBooking
+          ? `<button class="btn-danger" data-cancel-booking="${slot.id}|${ownBooking.id}">Remove this person</button>`
+          : `<button class="btn" data-book-slot="${slot.id}">Book this slot</button>`;
         card.innerHTML = `
           <div class="slot-row">
             <div>
               <span class="slot-time">${fmtTime(slot.date, slot.time)}</span>
               <div class="slot-meta">${slot.duration || 20}-minute interview</div>
               <div>
-                <span class="pill ${full ? "full" : "open"}">
-                  ${full ? "Full" : `${remaining} spot${remaining !== 1 ? "s" : ""} open`}
-                </span>
+                <span class="pill ${statusClass}">${statusText}</span>
               </div>
             </div>
-            <button class="btn" data-book-slot="${slot.id}" ${full ? "disabled" : ""}>
-              ${full ? "Full" : "Book this slot"}
-            </button>
+            ${action}
           </div>
         `;
         container.appendChild(card);
@@ -587,6 +589,26 @@ function renderBookingView() {
   container.querySelectorAll("[data-book-slot]").forEach((btn) => {
     btn.addEventListener("click", () => bookSlot(btn.getAttribute("data-book-slot")));
   });
+
+  container.querySelectorAll("[data-cancel-booking]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      removeBooking(btn.getAttribute("data-cancel-booking"), () => {
+        setStatus(document.getElementById("book-status"), "Booking removed.", "success");
+        renderBookingView();
+      });
+    });
+  });
+}
+
+function removeBooking(reference, afterRemove) {
+  const [slotId, bookingId] = reference.split("|");
+  const updated = loadSlots().map((slot) =>
+    slot.id === slotId
+      ? { ...slot, bookings: slot.bookings.filter((booking) => booking.id !== bookingId) }
+      : slot
+  );
+  saveSlots(updated);
+  afterRemove();
 }
 
 // ================= BOOKING LOGIC =================
