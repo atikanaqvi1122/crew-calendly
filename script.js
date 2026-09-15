@@ -100,6 +100,37 @@ async function bootstrapBackend() {
   if (isAdminAuthed) renderAdminDashboard();
 }
 
+async function refreshSharedData() {
+  if (!backendReady) return;
+
+  const [{ data: remoteSlots, error: slotsError }, { data: remoteMembers, error: membersError }] = await Promise.all([
+    supabaseClient.from("interview_slots").select("*").order("date").order("time"),
+    supabaseClient.from("interview_members").select("name").order("name"),
+  ]);
+
+  if (slotsError || membersError) return;
+  slotsCache = remoteSlots;
+  membersCache = remoteMembers.map((row) => row.name);
+  writeLocal(STORAGE_KEY, slotsCache);
+  writeLocal(MEMBERS_KEY, membersCache);
+  renderBookingView();
+  if (isAdminAuthed) renderAdminDashboard();
+}
+
+let idleRefreshTimer;
+
+function resetIdleRefreshTimer() {
+  window.clearTimeout(idleRefreshTimer);
+  idleRefreshTimer = window.setTimeout(async () => {
+    await refreshSharedData();
+    resetIdleRefreshTimer();
+  }, 10000);
+}
+
+["pointerdown", "keydown", "touchstart", "scroll"].forEach((eventName) => {
+  window.addEventListener(eventName, resetIdleRefreshTimer, { passive: true });
+});
+
 function subscribeToChanges() {
   supabaseClient
     .channel("crew-interview-live-sync")
@@ -595,3 +626,4 @@ updateTimezone();
 setInterval(updateTimezone, 30000);
 subscribeToChanges();
 bootstrapBackend();
+resetIdleRefreshTimer();
