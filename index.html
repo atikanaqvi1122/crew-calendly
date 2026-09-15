@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CREW Interview Booking</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="page">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-logo-frame">
+          <img src="Crew_logo.png" alt="CREW society logo" />
+        </div>
+        <span class="brand-label">Interviews</span>
+      </div>
+      <nav class="tabs">
+        <button id="tab-book" class="tab-btn active">Candidates</button>
+        <span class="dot">·</span>
+        <button id="tab-admin" class="tab-btn">Admin</button>
+      </nav>
+    </header>
+
+    <!-- ===== Candidate view ===== -->
+    <section id="view-book">
+      <div class="card">
+        <label for="candidate-name">Your name</label>
+        <input type="text" id="candidate-name" placeholder="e.g. Fatima Khan" />
+        <label for="candidate-email">Your email</label>
+        <input type="email" id="candidate-email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <p id="book-status" class="status"></p>
+      <div id="slots-list"></div>
+    </section>
+
+    <!-- ===== Admin view ===== -->
+    <section id="view-admin" class="hidden">
+
+      <div id="admin-gate" class="card gate">
+        <p>Enter the admin passcode to manage interview slots.</p>
+        <input type="password" id="admin-pass" placeholder="Passcode" />
+        <button id="admin-enter" class="btn">Enter</button>
+        <p id="admin-gate-error" class="error hidden">Wrong passcode.</p>
+      </div>
+
+      <div id="admin-content" class="hidden">
+        <div class="admin-dashboard">
+          <section class="card calendar-card">
+            <div class="calendar-header">
+              <div>
+                <span class="eyebrow">Schedule</span>
+                <h3 id="calendar-month">Month</h3>
+              </div>
+              <div class="calendar-nav">
+                <button id="calendar-prev" class="icon-btn" type="button" aria-label="Previous month">&lsaquo;</button>
+                <button id="calendar-next" class="icon-btn" type="button" aria-label="Next month">&rsaquo;</button>
+              </div>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
+            <p id="selected-date-label" class="selected-date-label"></p>
+          </section>
+
+          <div class="admin-tools">
+            <section class="card member-card">
+              <span class="eyebrow">Interview team</span>
+              <h3>Members</h3>
+              <div class="inline-form">
+                <input type="text" id="member-name" placeholder="Add member name" />
+                <button id="add-member" class="btn" type="button">Add</button>
+              </div>
+              <div id="member-list" class="member-list"></div>
+            </section>
+
+            <section class="card availability-card">
+              <span class="eyebrow">Selected day</span>
+              <h3 id="availability-title">Set availability</h3>
+              <div class="row wrap">
+                <label class="field-label" for="availability-start">From</label>
+                <input type="time" id="availability-start" value="09:00" />
+                <label class="field-label" for="availability-end">Until</label>
+                <input type="time" id="availability-end" value="17:00" />
+                <label class="field-label" for="slot-duration">Length</label>
+                <select id="slot-duration" aria-label="Interview duration">
+                  <option value="15">15 min</option>
+                  <option value="30" selected>30 min</option>
+                  <option value="45">45 min</option>
+                  <option value="60">60 min</option>
+                </select>
+              </div>
+              <div class="member-picker-heading">Available members</div>
+              <div id="availability-members" class="availability-members"></div>
+              <button id="add-availability" class="btn" type="button">Open these times</button>
+              <p id="admin-form-status" class="status"></p>
+            </section>
+          </div>
+        </div>
+
+        <h3 class="section-title">All slots</h3>
+        <div id="admin-slots-list"></div>
+      </div>
+
+    </section>
+
+    <div class="bottom-bar">
+      <div class="timezone-picker">
+        <button id="timezone-control" class="timezone-control" type="button" aria-expanded="false" aria-label="Selected time zone: Pakistan, Maldives Time">
+          <span class="timezone-label">Time zone</span>
+          <span class="timezone-value">
+            <span class="globe-icon" aria-hidden="true"></span>
+            <span id="timezone-name">Pakistan, Maldives Time</span>
+            <span id="timezone-time">--:--</span>
+            <span class="timezone-arrow" aria-hidden="true"></span>
+          </span>
+        </button>
+        <div id="timezone-options" class="timezone-options hidden" role="menu" aria-label="Time zone options">
+          <button type="button" role="menuitem" data-timezone="Asia/Karachi" data-timezone-name="Pakistan, Maldives Time">Pakistan, Maldives Time</button>
+          <button type="button" role="menuitem" data-timezone="Asia/Kolkata" data-timezone-name="India Standard Time">India Standard Time</button>
+          <button type="button" role="menuitem" data-timezone="Asia/Dubai" data-timezone-name="Gulf Standard Time">Gulf Standard Time</button>
+          <button type="button" role="menuitem" data-timezone="Europe/London" data-timezone-name="United Kingdom Time">United Kingdom Time</button>
+          <button type="button" role="menuitem" data-timezone="America/New_York" data-timezone-name="Eastern Time">Eastern Time</button>
+        </div>
+      </div>
+      <footer class="site-footer">Made by Atika. All rights reserved.</footer>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
