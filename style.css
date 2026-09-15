@@ -98,27 +98,16 @@ body {
 
 .ring-motif {
   position: absolute;
-  width: 150px;
+  width: 105px;
   aspect-ratio: 1;
   background: url('element.png') center / contain no-repeat;
-  opacity: 0.62;
-  filter: drop-shadow(0 0 8px rgba(61, 190, 225, 0.48));
-  animation: ring-blink 1.6s ease-in-out infinite;
+  opacity: 0.2;
 }
 
-@keyframes ring-blink {
-  0%, 100% { opacity: 0.32; }
-  50% { opacity: 0.88; }
-}
-
-.ring-upper-left { width: 105px; top: 24%; left: 7%; transform: rotate(-16deg); }
-.ring-upper-right { width: 185px; top: 30%; right: 6%; transform: rotate(18deg); }
-.ring-mid-left { width: 220px; top: 43%; left: 3%; animation-delay: 0.4s; transform: rotate(12deg); }
-.ring-mid-right { width: 120px; top: 48%; right: 4%; animation-delay: 0.8s; transform: rotate(-24deg); }
-.ring-center-left { width: 80px; top: 62%; left: 17%; animation-delay: 1.2s; transform: rotate(30deg); }
-.ring-center-right { width: 205px; top: 68%; right: 15%; animation-delay: 1.6s; transform: rotate(-10deg); }
-.ring-lower-center { width: 135px; bottom: 5%; left: 50%; animation-delay: 2s; transform: translateX(-50%) rotate(-8deg); }
-.ring-lower-right { width: 95px; right: 27%; bottom: 8%; animation-delay: 2.4s; transform: rotate(22deg); }
+.ring-upper-left { width: 105px; top: 8%; left: 8%; transform: rotate(-16deg); }
+.ring-upper-right { width: 135px; top: 10%; right: 8%; transform: rotate(18deg); }
+.ring-lower-left { width: 125px; bottom: 8%; left: 8%; transform: rotate(24deg); }
+.ring-lower-right { width: 95px; right: 8%; bottom: 8%; transform: rotate(22deg); }
 
 .page {
   position: relative;
@@ -494,6 +483,11 @@ select:focus {
 #candidate-name {
   width: 100%;
   margin-top: 0;
+}
+
+#candidate-email {
+  width: 100%;
+  margin-top: 8px;
 }
 
 .btn {
@@ -950,8 +944,7 @@ select:focus {
   }
 
   .ring-motif {
-    opacity: 0.58;
-    filter: drop-shadow(0 0 6px rgba(61, 190, 225, 0.42));
+    opacity: 0.16;
   }
 
   .topbar {
