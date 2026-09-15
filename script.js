@@ -487,6 +487,7 @@ function renderAdminSlots() {
             ${[15, 20, 30, 45, 60].map((minutes) => `<option value="${minutes}" ${Number(slot.duration || 20) === minutes ? "selected" : ""}>${minutes} min</option>`).join("")}
           </select>
           <span class="slot-range">${fmtTime(slot.date, slot.time)} - ${fmtTime(slot.date, minutesToTime(timeToMinutes(slot.time) + Number(slot.duration || 20)))}</span>
+          <span class="slot-interviewers"><strong>Interviewers:</strong> ${escapeHtml((slot.interviewers || []).join(", ") || "Not assigned")}</span>
           <button class="btn-link" data-save-slot="${slot.id}">Save slot</button>
           <button class="btn-danger" data-delete-slot="${slot.id}">Delete</button>
         </div>

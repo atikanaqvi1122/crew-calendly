@@ -1047,6 +1047,15 @@ select:focus {
   font-weight: 700;
 }
 
+.slot-interviewers {
+  color: var(--navy-soft);
+  font-size: 12px;
+}
+
+.slot-interviewers strong {
+  color: var(--red-dark);
+}
+
 .compact-edit {
   width: 100%;
 }
